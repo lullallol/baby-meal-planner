@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#F7F3EA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>냠냠 이유식</title>
+<style>
+:root{
+ --bg:#F7F3EA;--card:#FFFDF9;--ink:#27312D;--muted:#7C867F;
+ --sage:#A9BDAA;--sageD:#6E8875;--sageL:#E8F0E5;
+ --peach:#F2C8A9;--peachL:#FAE7D8;--cream:#F3EBDD;--line:#E6DED2;
+ --pink:#F3A7B8;--blue:#66A8DC;--lime:#B8D63D;--danger:#B96E69;
+ --shadow:0 10px 28px rgba(62,75,67,.08)
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#ECE7DD;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+body{min-height:100vh}
+.app{max-width:540px;min-height:100vh;margin:0 auto;background:var(--bg);padding:env(safe-area-inset-top) 16px calc(98px + env(safe-area-inset-bottom))}
+.top{padding:18px 3px 8px;display:flex;justify-content:space-between;align-items:flex-start}
+.kicker{font-size:11px;font-weight:900;letter-spacing:.12em;color:var(--muted)}
+h1{font-size:27px;line-height:1.1;margin:5px 0 0}
+.profile{border:0;background:var(--card);border-radius:18px;padding:9px 11px;box-shadow:var(--shadow);display:flex;gap:8px;align-items:center;color:var(--ink)}
+.profile .dot{width:32px;height:32px;border-radius:50%;background:var(--peach);display:grid;place-items:center}
+.profile small{display:block;color:var(--muted);font-size:10px}.profile b{font-size:12px}
+.page{display:none}.page.active{display:block}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;margin:20px 3px 10px}
+.sectionhead h2{margin:0;font-size:18px}.sectionhead .actions{display:flex;gap:6px}
+.textbtn{border:0;background:transparent;color:var(--sageD);font-size:12px;font-weight:900}
+.hero{background:linear-gradient(145deg,#FFFDF9,#F1E8D9);border-radius:30px;padding:20px;box-shadow:var(--shadow);margin-top:8px}
+.hero-head{display:flex;justify-content:space-between;gap:10px}
+.hero small{font-size:12px;color:var(--muted);font-weight:800}.hero h2{font-size:22px;margin:5px 0 0}
+.badge{background:var(--sage);color:white;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:900;align-self:flex-start}
+.empty{background:var(--card);border-radius:24px;padding:22px;text-align:center;box-shadow:var(--shadow)}
+.empty .big{font-size:34px}.empty b{display:block;margin-top:8px}.empty p{font-size:12px;color:var(--muted);line-height:1.5;margin:7px 0 0}
+.card{background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:14px}
+.mealrow{display:flex;gap:11px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--line)}.mealrow:last-child{border-bottom:0}
+.mico{width:40px;height:40px;border-radius:13px;background:var(--cream);display:grid;place-items:center;font-size:19px}
+.mtxt{flex:1}.mtxt small{display:block;color:var(--muted);font-size:10px;font-weight:900}.mtxt b{display:block;margin-top:2px;font-size:14px}.grams{font-size:12px;color:var(--muted);font-weight:900}
+.total{display:flex;justify-content:space-between;align-items:center;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);font-size:13px}.total b{font-size:17px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini{background:var(--card);border-radius:21px;padding:14px;box-shadow:var(--shadow)}
+.mini label{display:block;color:var(--muted);font-size:10px;font-weight:900;margin-bottom:8px}
+.mini input{width:72px;border:0;background:var(--cream);border-radius:12px;padding:9px;font-weight:900;outline:none}
+.seg{display:flex;gap:5px}.seg button{flex:1;border:0;background:var(--cream);border-radius:11px;padding:9px 5px;color:var(--muted);font-size:11px;font-weight:900}.seg .active{background:var(--sage);color:white}
+.primary{width:100%;border:0;background:var(--sageD);color:white;border-radius:18px;padding:15px;margin-top:11px;font-weight:950;box-shadow:0 8px 18px rgba(110,136,117,.22)}
+.outline{width:100%;border:1px dashed #CEC6B9;background:#FCF8F1;border-radius:17px;padding:13px;margin-top:10px;color:var(--muted);font-weight:900}
+
+/* calendar */
+.calendar-shell{background:var(--card);border-radius:28px;padding:15px 13px 13px;box-shadow:var(--shadow)}
+.cal-top{display:flex;align-items:center;justify-content:space-between;padding:3px 3px 13px}
+.cal-top b{font-size:18px}.cal-top button{width:35px;height:35px;border:0;border-radius:12px;background:var(--cream);font-weight:900}
+.weekdays,.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.weekdays div{text-align:center;font-size:10px;font-weight:900;color:var(--muted);padding:4px 0 7px}
+.day{min-height:66px;border:0;border-radius:14px;background:#FBF8F2;padding:6px 4px;text-align:left;color:var(--ink);position:relative}
+.day.out{opacity:.28}.day.selected{outline:2px solid var(--sageD);background:#F1F6EF}.day.todaymark{background:#FFF1E6}
+.daynum{font-size:11px;font-weight:950}
+.food{display:block;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px;color:#68736B;font-weight:800}
+.babyday{display:block;font-size:8px;margin-top:4px;color:var(--sageD);font-weight:950;white-space:nowrap}
+.plannedDot{position:absolute;right:5px;top:5px;width:6px;height:6px;background:var(--sageD);border-radius:50%}
+.detail{margin-top:11px;background:#F9F5EE;border-radius:21px;padding:14px}
+.detailhead{display:flex;justify-content:space-between;align-items:center}.detail h3{margin:0;font-size:15px}
+.smallbtn{border:0;border-radius:11px;background:var(--sageL);color:var(--sageD);padding:8px 9px;font-size:10px;font-weight:900}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.chip{font-size:10px;font-weight:800;padding:7px 9px;border-radius:999px;background:white;border:1px solid var(--line)}
+.tip{background:linear-gradient(145deg,#FFF7E9,#F7E5D0);border-radius:23px;padding:15px 16px;margin-top:12px;box-shadow:var(--shadow)}
+.tip small{font-size:10px;color:#9A7658;font-weight:900}.tip b{display:block;margin-top:3px}.tip p{font-size:12px;line-height:1.55;color:#705E50;margin:8px 0 0}
+
+/* guide */
+.stage-tabs{display:flex;gap:7px;overflow:auto;padding:2px 1px 10px;scrollbar-width:none}.stage-tabs::-webkit-scrollbar{display:none}
+.stage-tabs button{min-width:max-content;border:0;border-radius:15px;background:var(--card);padding:10px 12px;box-shadow:var(--shadow);font-size:11px;font-weight:900;color:var(--muted)}
+.stage-tabs button.active{background:var(--sageD);color:white}
+.guidecard{background:var(--card);border-radius:30px;box-shadow:var(--shadow);overflow:hidden}
+.guidehead{padding:20px;background:linear-gradient(140deg,#EEF4EC,#F8EBDD)}
+.guidehead small{color:var(--sageD);font-size:11px;font-weight:900}.guidehead h2{font-size:22px;margin:5px 0 4px}
+.guidehead p{font-size:11px;color:var(--muted);margin:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px 16px 0}
+.stat{background:#F8F5EE;border-radius:16px;padding:12px}.stat small{display:block;color:var(--muted);font-size:9px;font-weight:900}.stat b{display:block;font-size:16px;margin-top:4px}
+.timeline{padding:18px 16px}.timerow{display:grid;grid-template-columns:52px 1fr;gap:9px;align-items:center;margin-bottom:9px}.time{font-size:11px;color:var(--muted);font-weight:900}
+.event{border-radius:16px;padding:10px 12px;font-size:12px;font-weight:900;color:white;text-align:center}.milk{background:var(--pink)}.meal{background:var(--blue)}.snack{background:var(--lime);color:#526200}
+.guide-note{margin:0 16px 16px;background:#F6EFE3;border-radius:16px;padding:12px;color:#74675C;font-size:10px;line-height:1.5}
+
+/* ingredients */
+.category{background:var(--card);border-radius:22px;padding:13px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.cathead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.cathead h3{margin:0;font-size:14px}
+.cathead button{border:0;border-radius:10px;background:var(--sageL);color:var(--sageD);padding:7px 9px;font-size:11px;font-weight:900}
+.ing{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:10px 1px}.ing:first-of-type{border-top:0}.ing span{font-size:13px}
+.ing button{border:0;background:#F7E6E4;color:var(--danger);border-radius:9px;padding:6px 8px;font-size:10px;font-weight:900}
+.addbox{display:none;margin-top:10px;gap:7px}.addbox.show{display:flex}.addbox input{flex:1;border:1px solid var(--line);background:#FBF8F2;border-radius:12px;padding:10px;outline:none}.addbox button{border:0;border-radius:12px;background:var(--sageD);color:white;padding:0 12px;font-weight:900}
+
+/* history */
+.history{background:var(--card);border-radius:22px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.hh{display:flex;justify-content:space-between}.hh b{font-size:14px}.hh span{font-size:11px;color:var(--muted)}.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.tag{font-size:10px;font-weight:800;padding:6px 8px;border-radius:999px;background:var(--cream)}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(36,45,40,.35);display:none;align-items:flex-end;justify-content:center;z-index:50}.modal.show{display:flex}
+.sheet{width:min(540px,100%);max-height:90vh;overflow:auto;background:var(--bg);border-radius:28px 28px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+.handle{width:42px;height:5px;border-radius:999px;background:#D5CEC2;margin:0 auto 14px}
+.sheethead{display:flex;justify-content:space-between;align-items:center}.sheethead h2{font-size:19px;margin:0}.close{border:0;background:var(--cream);border-radius:12px;width:34px;height:34px;font-weight:900}
+.editor-section{margin-top:16px}.editor-section h3{font-size:14px;margin:0 0 8px}
+.editor-row{display:grid;grid-template-columns:1fr 74px 34px;gap:7px;align-items:center;margin-bottom:7px}
+.editor-row select,.editor-row input{width:100%;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px;outline:none}
+.remove{width:34px;height:34px;border:0;border-radius:10px;background:#F5E5E3;color:var(--danger);font-weight:900}
+.addline{width:100%;border:1px dashed #C9C0B3;background:#FCF8F1;border-radius:13px;padding:10px;color:var(--sageD);font-weight:900}
+.shopping-row{display:flex;justify-content:space-between;padding:11px 2px;border-bottom:1px solid var(--line)}.shopping-row:last-child{border-bottom:0}.shopping-row b{font-size:13px}.shopping-row span{font-size:12px;color:var(--muted);font-weight:900}
+
+.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(540px,100%);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:rgba(247,243,234,.94);backdrop-filter:blur(18px);border-top:1px solid rgba(219,211,201,.8);z-index:20}
+.nav button{border:0;background:transparent;padding:6px 1px;color:#8A918C;font-size:9px;font-weight:900}.nav span{display:block;font-size:20px;margin-bottom:2px}.nav .active{color:var(--sageD)}
+.toast{position:fixed;left:50%;bottom:105px;transform:translateX(-50%) translateY(15px);background:#26312C;color:white;padding:11px 14px;border-radius:14px;font-size:11px;font-weight:900;opacity:0;transition:.25s;pointer-events:none;z-index:60}.toast.show{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+ <div><div class="kicker">BABY MEAL PLANNER</div><h1>냠냠 이유식</h1></div>
+ <button class="profile" onclick="openProfile()">
+  <span class="dot" id="profileAvatarWrap"><span id="profileEmoji">👶</span><img id="profileAvatar" alt="아기 프로필 사진" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%"></span>
+  <span><small id="profileName">우리 아기</small><b id="profileAge">생일을 등록해 주세요</b></span>
+</button>
+</header>
+
+<section id="today" class="page active">
+ <div class="hero">
+  <div class="hero-head"><div><small id="todayDate"></small><h2>오늘 먹을 이유식</h2></div><div class="badge">캘린더 계획</div></div>
+ </div>
+ <div id="todayGrowthCard" class="card" style="margin-top:10px;display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <div>
+      <small style="display:block;color:var(--muted);font-size:10px;font-weight:900">오늘의 성장</small>
+      <b id="todayGrowthText" style="display:block;font-size:16px;margin-top:4px"></b>
+    </div>
+    <span style="font-size:26px">🌱</span>
+  </div>
+</div>
+<div class="sectionhead"><h2>오늘 식단</h2><button class="textbtn" onclick="goCalendarToday()">캘린더에서 수정</button></div>
+ <div id="todayPlan"></div>
+ <div class="sectionhead"><h2>먹은 기록</h2></div>
+ <div class="grid2">
+  <div class="mini"><label>실제로 먹은 양</label><input id="eatGram" type="number" min="0" value="0"> <b>g</b></div>
+  <div class="mini"><label>알레르기</label><div class="seg"><button id="noA" class="active" onclick="setAllergy(false)">없음</button><button id="yesA" onclick="setAllergy(true)">있음</button></div></div>
+ </div>
+ <button class="outline" onclick="toast('사진 기록은 다음 단계에서 연결할게요')">📷 사진 남기기</button>
+ <button class="primary" onclick="saveTodayRecord()">오늘 기록 저장</button>
+</section>
+
+<section id="calendar" class="page">
+ <div class="sectionhead"><h2>식단 캘린더</h2><div class="actions"><button class="textbtn" onclick="openShopping()">장보기</button><button class="textbtn" onclick="editSelectedDate()">식단 편집</button></div></div>
+ <div class="calendar-shell">
+  <div class="cal-top"><button onclick="changeMonth(-1)">‹</button><b id="monthTitle"></b><button onclick="changeMonth(1)">›</button></div>
+  <div class="weekdays"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
+  <div class="calgrid" id="calgrid"></div>
+  <div class="detail" id="calDetail"></div>
+ </div>
+ <div class="tip"><small>PLAN TIP</small><b>며칠치 식단을 미리 계획해 두세요</b><p>캘린더에 식단을 입력해두면 오늘 화면에서는 확인만 하면 되고, 장보기에서는 앞으로 필요한 재료를 합산해 볼 수 있어요.</p></div>
+</section>
+
+<section id="guide" class="page">
+ <div class="sectionhead"><h2>단계별 이유식 하루 시간표</h2></div>
+ <div class="stage-tabs" id="stageTabs"></div>
+ <div class="guidecard" id="guideCard"></div>
+ <div class="tip"><small>GUIDE</small><b>참고용 시간표예요</b><p>아기의 성장, 수유량, 수면 패턴에 따라 실제 시간과 양은 달라질 수 있어요.</p></div>
+</section>
+
+<section id="ingredients" class="page">
+ <div class="sectionhead"><h2>재료 관리</h2><button class="textbtn" onclick="resetIngredients()">기본값 복원</button></div>
+ <div id="ingredientCategories"></div>
+</section>
+
+<section id="historyPage" class="page">
+ <div class="sectionhead"><h2>먹은 기록</h2><button class="textbtn" onclick="clearHistory()">전체 삭제</button></div>
+ <div id="historyList"></div>
+</section>
+</div>
+
+<nav class="nav">
+ <button id="navToday" class="active" onclick="showPage('today',this)"><span>🏠</span>오늘</button>
+ <button id="navCalendar" onclick="showPage('calendar',this)"><span>🗓️</span>캘린더</button>
+ <button onclick="showPage('guide',this)"><span>📘</span>가이드</button>
+ <button onclick="showPage('ingredients',this)"><span>🥕</span>재료</button>
+ <button onclick="showPage('historyPage',this)"><span>📖</span>기록</button>
+</nav>
+
+<div class="modal" id="planModal">
+ <div class="sheet">
+  <div class="handle"></div>
+  <div class="sheethead"><h2 id="planTitle">식단 계획</h2><button class="close" onclick="closeModal('planModal')">×</button></div>
+  <div class="editor-section"><h3>베이스</h3><div class="editor-row"><select id="planBase"></select><input id="planBaseG" type="number" min="0" value="40"><span>g</span></div></div>
+  <div class="editor-section"><h3>토핑</h3><div id="planToppings"></div><button class="addline" onclick="addPlanTopping()">+ 토핑 추가</button></div>
+  <div class="editor-section"><h3>단백질</h3><div class="editor-row"><select id="planProtein"></select><input id="planProteinG" type="number" min="0" value="10"><span>g</span></div></div>
+  <div class="editor-section"><h3>간식</h3><div id="planSnacks"></div><button class="addline" onclick="addPlanSnack()">+ 간식 추가</button></div>
+  <button class="primary" onclick="savePlan()">이 날짜 식단 저장</button>
+ </div>
+</div>
+
+<div class="modal" id="shoppingModal">
+ <div class="sheet">
+  <div class="handle"></div>
+  <div class="sheethead"><h2>앞으로 7일 장보기</h2><button class="close" onclick="closeModal('shoppingModal')">×</button></div>
+  <div class="tip"><small>SHOPPING LIST</small><b>캘린더 식단 기준 자동 합산</b><p>선택한 날짜부터 7일 동안 계획된 재료를 모두 합산해 보여줘요.</p></div>
+  <div class="card" id="shoppingList" style="margin-top:12px"></div>
+ </div>
+</div>
+
+
+<div class="modal" id="profileModal">
+ <div class="sheet">
+  <div class="handle"></div>
+  <div class="sheethead"><h2>아기 프로필</h2><button class="close" onclick="closeModal('profileModal')">×</button></div>
+  <div class="card" style="margin-top:14px">
+   <div style="display:flex;align-items:center;gap:14px">
+    <div id="profilePreviewWrap" style="width:76px;height:76px;border-radius:50%;background:var(--peach);display:grid;place-items:center;overflow:hidden;font-size:34px;flex:0 0 auto">
+      <span id="profilePreviewEmoji">👶</span>
+      <img id="profilePreview" alt="아기 프로필 미리보기" style="display:none;width:100%;height:100%;object-fit:cover">
+    </div>
+    <div style="flex:1">
+      <label style="display:block;font-size:10px;color:var(--muted);font-weight:900;margin-bottom:6px">아기 이름</label>
+      <input id="babyNameInput" type="text" placeholder="예: 도해" style="width:100%;border:1px solid var(--line);background:#FBF8F2;border-radius:12px;padding:11px;outline:none">
+      <label style="display:block;font-size:10px;color:var(--muted);font-weight:900;margin:10px 0 6px">생년월일</label>
+      <input id="babyBirthInput" type="date" style="width:100%;border:1px solid var(--line);background:#FBF8F2;border-radius:12px;padding:11px;outline:none;color:var(--ink)">
+    </div>
+   </div>
+   <input id="babyPhotoInput" type="file" accept="image/*" hidden>
+   <button class="outline" onclick="document.getElementById('babyPhotoInput').click()">📷 아기 사진 선택</button>
+   <button class="outline" onclick="removeBabyPhoto()">기본 아기 아이콘으로 변경</button>
+  </div>
+
+  <div class="tip" style="margin-top:12px">
+    <small>이용 안내</small>
+    <b>기록은 현재 기기에만 저장돼요</b>
+    <p>모든 기록은 현재 사용 중인 휴대폰에만 저장됩니다. 다른 휴대폰·태블릿과 자동으로 공유되지 않으며, 브라우저 데이터를 삭제하면 기록이 사라질 수 있습니다.</p>
+  </div>
+
+  <button class="primary" onclick="saveProfile()">프로필 저장</button>
+ </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const DEFAULT_ING={
+ grain:['쌀','오트밀','현미'],
+ vegetable:['브로콜리','양배추','애호박','완두콩','비타민','오이','단호박','감자','고구마','청경채','콜리플라워','당근'],
+ protein:['소고기','닭고기','달걀 노른자','두부'],
+ fruit:['바나나','사과','배']
+};
+const LABELS={grain:'🍚 곡물',vegetable:'🥦 채소',protein:'🥩 단백질',fruit:'🍎 과일'};
+let allergy=false;
+let selectedDate=new Date();
+let calMonth=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
+let editDate=null, editToppings=[], editSnacks=[];
+let selectedStage=0;
+
+const stages=[
+ {name:'초기1',months:'4~5개월',milk:'800~1000cc',meal:'30~60g',events:[
+  ['06:00','수유','milk'],['10:00','이유식+수유','meal'],['14:00','수유','milk'],['18:00','수유','milk'],['22:00','수유','milk']]},
+ {name:'초기1.5·초기2',months:'5~6개월',milk:'800~900cc',meal:'50~80g',events:[
+  ['06:00','수유','milk'],['10:00','이유식+수유','meal'],['14:00','이유식+수유','meal'],['18:00','수유','milk'],['22:00','수유','milk']]},
+ {name:'중기',months:'6~9개월',milk:'700~800cc',meal:'100~120g',events:[
+  ['06:00','수유','milk'],['10:00','이유식+수유','meal'],['14:00','이유식+수유','meal'],['18:00','수유','milk'],['22:00','수유','milk']]},
+ {name:'후기',months:'9~12개월',milk:'600~700cc',meal:'120~160g',events:[
+  ['07:00','수유','milk'],['10:00','이유식+수유','meal'],['13:00','이유식+수유','meal'],['16:00','간식','snack'],['18:00','이유식+수유','meal'],['22:00','수유','milk']]},
+ {name:'완료기',months:'12~14개월',milk:'400~500cc',meal:'160~180g',events:[
+  ['08:00','이유식+수유','meal'],['10:00','간식','snack'],['12:00','이유식+수유','meal'],['16:00','간식','snack'],['18:00','이유식+수유','meal'],['22:00','수유','milk']]}
+];
+
+function keyOf(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10)}
+function fmtDate(d){return new Intl.DateTimeFormat('ko-KR',{month:'long',day:'numeric',weekday:'long'}).format(d)}
+function getIngredients(){return JSON.parse(localStorage.getItem('ingredientsV4')||JSON.stringify(DEFAULT_ING))}
+function setIngredients(v){localStorage.setItem('ingredientsV4',JSON.stringify(v));renderIngredients()}
+function getPlans(){return JSON.parse(localStorage.getItem('plansV4')||'{}')}
+function setPlans(v){localStorage.setItem('plansV4',JSON.stringify(v))}
+function getHistory(){return JSON.parse(localStorage.getItem('historyV4')||'{}')}
+function setHistory(v){localStorage.setItem('historyV4',JSON.stringify(v))}
+function toast(msg){let e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1700)}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='today')renderToday();if(id==='historyPage')renderHistory()}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function setAllergy(v){allergy=v;noA.classList.toggle('active',!v);yesA.classList.toggle('active',v)}
+
+function renderToday(){
+ todayDate.textContent=fmtDate(new Date());
+ const plan=getPlans()[keyOf(new Date())];
+ if(!plan){
+  todayPlan.innerHTML=`<div class="empty"><div class="big">🗓️</div><b>오늘 계획된 식단이 없어요</b><p>캘린더에서 오늘 먹일 재료와 양을 먼저 계획해 주세요.</p></div>`;
+  return;
+ }
+ const rows=[
+  ['🍚','베이스',plan.base.name,plan.base.g],
+  ...plan.toppings.map(x=>['🥦','토핑',x.name,x.g]),
+  ['🥩','단백질',plan.protein.name,plan.protein.g],
+  ...plan.snacks.map(x=>['🍎','간식',x.name,x.g])
+ ];
+ let total=rows.reduce((s,x)=>s+Number(x[3]||0),0);
+ todayPlan.innerHTML=`<div class="card">${rows.map(r=>`<div class="mealrow"><div class="mico">${r[0]}</div><div class="mtxt"><small>${r[1]}</small><b>${r[2]}</b></div><div class="grams">${r[3]}g</div></div>`).join('')}<div class="total"><span>총 준비량</span><b>${total}g</b></div></div>`;
+ const h=getHistory()[keyOf(new Date())];
+ if(h){eatGram.value=h.eaten||0;setAllergy(!!h.allergy)}
+}
+function goCalendarToday(){selectedDate=new Date();calMonth=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);showPage('calendar',navCalendar);renderCalendar()}
+
+function saveTodayRecord(){
+ const k=keyOf(new Date()),plan=getPlans()[k];
+ if(!plan){toast('먼저 캘린더에서 오늘 식단을 계획해 주세요');return}
+ const h=getHistory();h[k]={eaten:Number(eatGram.value||0),allergy,plan};setHistory(h);toast('오늘 먹은 기록을 저장했어요 ✓')
+}
+
+/* Calendar */
+function changeMonth(n){calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()+n,1);renderCalendar()}
+function renderCalendar(){
+ monthTitle.textContent=`${calMonth.getFullYear()}년 ${calMonth.getMonth()+1}월`;calgrid.innerHTML='';
+ const plans=getPlans(), todayKey=keyOf(new Date());
+ let first=new Date(calMonth.getFullYear(),calMonth.getMonth(),1), start=new Date(first);start.setDate(1-first.getDay());
+ for(let i=0;i<42;i++){
+  const d=new Date(start);d.setDate(start.getDate()+i);const k=keyOf(d),plan=plans[k];
+  const b=document.createElement('button');
+  b.className='day'+(d.getMonth()!==calMonth.getMonth()?' out':'')+(k===keyOf(selectedDate)?' selected':'')+(k===todayKey?' todaymark':'');
+  const bd=babyDaysOn(d);
+  b.innerHTML=`<span class="daynum">${d.getDate()}</span>${bd!==null&&bd>=0?`<span class="babyday">D+${bd}</span>`:''}${plan?`<span class="plannedDot"></span><span class="food">${plan.toppings[0]?.name||plan.base.name}</span>`:''}`;
+  b.onclick=()=>{selectedDate=new Date(d);renderCalendar()};calgrid.appendChild(b)
+ }
+ renderCalendarDetail()
+}
+function renderCalendarDetail(){
+ const k=keyOf(selectedDate),p=getPlans()[k];
+ const selectedDays=babyDaysOn(selectedDate);
+ const selectedAge=babyMonthsText(selectedDate);
+ const ageBadge=(selectedDays!==null&&selectedDays>=0)?`<span class="chip">${selectedAge} · D+${selectedDays}</span>`:'';
+ if(!p){calDetail.innerHTML=`<div class="detailhead"><h3>${fmtDate(selectedDate)}</h3><button class="smallbtn" onclick="editSelectedDate()">+ 식단 계획</button></div><div class="chips">${ageBadge}<span class="chip">아직 계획 없음</span></div>`;return}
+ const tags=[`${p.base.name} ${p.base.g}g`,...p.toppings.map(x=>`${x.name} ${x.g}g`),`${p.protein.name} ${p.protein.g}g`,...p.snacks.map(x=>`${x.name} ${x.g}g`)];
+ calDetail.innerHTML=`<div class="detailhead"><h3>${fmtDate(selectedDate)}</h3><button class="smallbtn" onclick="editSelectedDate()">수정</button></div><div class="chips">${ageBadge}${tags.map(x=>`<span class="chip">${x}</span>`).join('')}</div>`
+}
+function options(arr,selected){return arr.map(x=>`<option ${x===selected?'selected':''}>${x}</option>`).join('')}
+function editSelectedDate(){
+ editDate=new Date(selectedDate);const ing=getIngredients();const p=getPlans()[keyOf(editDate)];
+ planTitle.textContent=`${fmtDate(editDate)} 식단 계획`;
+ planBase.innerHTML=options(ing.grain,p?.base?.name||ing.grain[0]||'');
+ planProtein.innerHTML=options(ing.protein,p?.protein?.name||ing.protein[0]||'');
+ planBaseG.value=p?.base?.g??40;planProteinG.value=p?.protein?.g??10;
+ editToppings=p?.toppings?.map(x=>({...x}))||[{name:ing.vegetable[0]||'',g:10}];
+ editSnacks=p?.snacks?.map(x=>({...x}))||[];
+ renderPlanRows();planModal.classList.add('show')
+}
+function renderPlanRows(){
+ const ing=getIngredients();
+ planToppings.innerHTML=editToppings.map((x,i)=>`<div class="editor-row"><select onchange="editToppings[${i}].name=this.value">${options(ing.vegetable,x.name)}</select><input type="number" min="0" value="${x.g}" oninput="editToppings[${i}].g=Number(this.value)"><button class="remove" onclick="editToppings.splice(${i},1);renderPlanRows()">×</button></div>`).join('');
+ const snackChoices=[...ing.fruit,...ing.vegetable];
+ planSnacks.innerHTML=editSnacks.map((x,i)=>`<div class="editor-row"><select onchange="editSnacks[${i}].name=this.value">${options(snackChoices,x.name)}</select><input type="number" min="0" value="${x.g}" oninput="editSnacks[${i}].g=Number(this.value)"><button class="remove" onclick="editSnacks.splice(${i},1);renderPlanRows()">×</button></div>`).join('')
+}
+function addPlanTopping(){const a=getIngredients().vegetable;editToppings.push({name:a[0]||'',g:10});renderPlanRows()}
+function addPlanSnack(){const ing=getIngredients(),a=[...ing.fruit,...ing.vegetable];editSnacks.push({name:a[0]||'',g:10});renderPlanRows()}
+function savePlan(){
+ const plans=getPlans(),k=keyOf(editDate);
+ plans[k]={base:{name:planBase.value,g:Number(planBaseG.value||0)},toppings:editToppings.map(x=>({...x})),protein:{name:planProtein.value,g:Number(planProteinG.value||0)},snacks:editSnacks.map(x=>({...x}))};
+ setPlans(plans);closeModal('planModal');renderCalendar();renderToday();toast('식단 계획을 저장했어요 ✓')
+}
+function openShopping(){
+ const plans=getPlans(),totals={};let d=new Date(selectedDate);
+ for(let i=0;i<7;i++){const p=plans[keyOf(d)];if(p){
+  const add=(name,g)=>{if(!name)return;totals[name]=(totals[name]||0)+Number(g||0)};
+  add(p.base.name,p.base.g);p.toppings.forEach(x=>add(x.name,x.g));add(p.protein.name,p.protein.g);p.snacks.forEach(x=>add(x.name,x.g))
+ } d.setDate(d.getDate()+1)}
+ const entries=Object.entries(totals).sort((a,b)=>a[0].localeCompare(b[0],'ko'));
+ shoppingList.innerHTML=entries.length?entries.map(([n,g])=>`<div class="shopping-row"><b>${n}</b><span>${g}g</span></div>`).join(''):`<div class="empty"><div class="big">🛒</div><b>계획된 식단이 없어요</b><p>선택한 날짜부터 7일 동안의 식단을 먼저 입력해 주세요.</p></div>`;
+ shoppingModal.classList.add('show')
+}
+
+/* guide */
+function renderGuide(){
+ stageTabs.innerHTML=stages.map((s,i)=>`<button class="${i===selectedStage?'active':''}" onclick="selectedStage=${i};renderGuide()">${s.name}<br>${s.months}</button>`).join('');
+ const s=stages[selectedStage];
+ guideCard.innerHTML=`<div class="guidehead"><small>${s.name} · ${s.months}</small><h2>${s.name} 이유식 하루 시간표</h2><p>단계별 하루 흐름 참고용</p></div>
+ <div class="stats"><div class="stat"><small>총 수유량</small><b>${s.milk}</b></div><div class="stat"><small>1회 이유식 섭취량</small><b>${s.meal}</b></div></div>
+ <div class="timeline">${s.events.map(e=>`<div class="timerow"><div class="time">${e[0]}</div><div class="event ${e[2]}">${e[1]}</div></div>`).join('')}</div>
+ <div class="guide-note">※ 보내주신 참고 이미지의 단계·시간·양 정보 구조를 바탕으로 앱용으로 새롭게 구성한 참고표입니다.</div>`
+}
+
+/* ingredients */
+function renderIngredients(){
+ const ing=getIngredients();
+ ingredientCategories.innerHTML=Object.keys(ing).map(cat=>`<div class="category"><div class="cathead"><h3>${LABELS[cat]}</h3><button onclick="toggleAdd('${cat}')">+ 재료 추가</button></div>${ing[cat].map((name,i)=>`<div class="ing"><span>${name}</span><button onclick="deleteIngredient('${cat}',${i})">삭제</button></div>`).join('')}<div class="addbox" id="add-${cat}"><input id="input-${cat}" placeholder="새 재료 이름"><button onclick="addIngredient('${cat}')">추가</button></div></div>`).join('')
+}
+function toggleAdd(cat){document.getElementById('add-'+cat).classList.toggle('show')}
+function addIngredient(cat){const input=document.getElementById('input-'+cat),name=input.value.trim();if(!name)return;const ing=getIngredients();if(!ing[cat].includes(name))ing[cat].push(name);setIngredients(ing);toast(name+'을(를) 추가했어요')}
+function deleteIngredient(cat,i){const ing=getIngredients(),name=ing[cat][i];ing[cat].splice(i,1);setIngredients(ing);toast(name+'을(를) 삭제했어요')}
+function resetIngredients(){localStorage.setItem('ingredientsV4',JSON.stringify(DEFAULT_ING));renderIngredients();toast('기본 재료 목록으로 복원했어요')}
+
+/* history */
+function renderHistory(){
+ const h=getHistory(),entries=Object.entries(h).sort((a,b)=>b[0].localeCompare(a[0]));
+ historyList.innerHTML=entries.length?entries.map(([date,x])=>{const p=x.plan;const tags=[`${p.base.name} ${p.base.g}g`,...p.toppings.map(t=>`${t.name} ${t.g}g`),`${p.protein.name} ${p.protein.g}g`,...p.snacks.map(s=>`${s.name} ${s.g}g`)];return `<div class="history"><div class="hh"><b>${date}</b><span>${x.eaten}g 먹음</span></div><div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}${x.allergy?'<span class="tag">알레르기 있음</span>':''}</div></div>`}).join(''):`<div class="empty"><div class="big">📖</div><b>아직 먹은 기록이 없어요</b><p>오늘 탭에서 실제 섭취량을 기록해 보세요.</p></div>`
+}
+function clearHistory(){localStorage.removeItem('historyV4');renderHistory();toast('먹은 기록을 모두 삭제했어요')}
+
+
+/* profile */
+let pendingBabyPhoto = null;
+
+function getStoredProfile(){
+  const v6 = JSON.parse(localStorage.getItem('babyProfileV6')||'null');
+  if(v6) return v6;
+  const old = JSON.parse(localStorage.getItem('babyProfileV4')||'{}');
+  return {name:old.name||'우리 아기', photo:old.photo||null, birth:''};
+}
+function parseLocalDate(value){
+  if(!value) return null;
+  const [y,m,d]=value.split('-').map(Number);
+  return new Date(y,m-1,d);
+}
+function dayDiffLocal(a,b){
+  const A=Date.UTC(a.getFullYear(),a.getMonth(),a.getDate());
+  const B=Date.UTC(b.getFullYear(),b.getMonth(),b.getDate());
+  return Math.floor((A-B)/86400000);
+}
+function babyDaysOn(date){
+  const p=getStoredProfile();
+  const birth=parseLocalDate(p.birth);
+  if(!birth) return null;
+  return dayDiffLocal(date,birth);
+}
+function babyMonthsText(date){
+  const p=getStoredProfile();
+  const birth=parseLocalDate(p.birth);
+  if(!birth) return null;
+  if(date < birth) return '출생 전';
+  let months=(date.getFullYear()-birth.getFullYear())*12+(date.getMonth()-birth.getMonth());
+  if(date.getDate()<birth.getDate()) months--;
+  const anchor=new Date(birth.getFullYear(),birth.getMonth()+months,birth.getDate());
+  const extra=dayDiffLocal(date,anchor);
+  return `생후 ${months}개월 ${Math.max(0,extra)}일`;
+}
+function loadProfile(){
+  const p=getStoredProfile();
+  const name=p.name||'우리 아기';
+  profileName.textContent=name;
+  babyNameInput.value=name==='우리 아기'?'':name;
+  babyBirthInput.value=p.birth||'';
+
+  const ageText=babyMonthsText(new Date());
+  const days=babyDaysOn(new Date());
+  profileAge.textContent=ageText ? `${ageText} · D+${days}` : '생일을 등록해 주세요';
+
+  if(p.photo){
+    profileAvatar.src=p.photo; profileAvatar.style.display='block'; profileEmoji.style.display='none';
+    profilePreview.src=p.photo; profilePreview.style.display='block'; profilePreviewEmoji.style.display='none';
+  }else{
+    profileAvatar.style.display='none'; profileEmoji.style.display='inline';
+    profilePreview.style.display='none'; profilePreviewEmoji.style.display='inline';
+  }
+
+  const growth=document.getElementById('todayGrowthCard');
+  const growthText=document.getElementById('todayGrowthText');
+  if(ageText && days!==null && days>=0){
+    growth.style.display='block';
+    growthText.textContent=`${ageText} · 생후 ${days}일`;
+  }else{
+    growth.style.display='none';
+  }
+}
+function openProfile(){
+  const p=getStoredProfile();
+  babyNameInput.value=(p.name&&p.name!=='우리 아기')?p.name:'';
+  babyBirthInput.value=p.birth||'';
+  pendingBabyPhoto=p.photo||null;
+  if(p.photo){
+    profilePreview.src=p.photo; profilePreview.style.display='block'; profilePreviewEmoji.style.display='none';
+  }else{
+    profilePreview.style.display='none'; profilePreviewEmoji.style.display='inline';
+  }
+  profileModal.classList.add('show');
+}
+babyPhotoInput.addEventListener('change',e=>{
+  const file=e.target.files?.[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    pendingBabyPhoto=reader.result;
+    profilePreview.src=pendingBabyPhoto; profilePreview.style.display='block'; profilePreviewEmoji.style.display='none';
+  };
+  reader.readAsDataURL(file);
+});
+function removeBabyPhoto(){
+  pendingBabyPhoto=null;
+  profilePreview.style.display='none'; profilePreviewEmoji.style.display='inline';
+}
+function saveProfile(){
+  const name=babyNameInput.value.trim()||'우리 아기';
+  const birth=babyBirthInput.value||'';
+  if(birth){
+    const bd=parseLocalDate(birth);
+    const today=new Date();
+    if(bd>today){toast('생년월일은 오늘보다 미래일 수 없어요');return}
+  }
+  localStorage.setItem('babyProfileV6',JSON.stringify({name,photo:pendingBabyPhoto,birth}));
+  loadProfile();
+  renderCalendar();
+  renderToday();
+  closeModal('profileModal');
+  toast('아기 프로필을 저장했어요 ✓');
+}
+
+loadProfile();renderToday();renderCalendar();renderGuide();renderIngredients();renderHistory();
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "냠냠 이유식",
+  "short_name": "냠냠이유식",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F7F3EA",
+  "theme_color": "#F7F3EA"
+}
