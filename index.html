@@ -177,9 +177,9 @@ h1{font-size:27px;line-height:1.1;margin:5px 0 0}
 <nav class="nav">
  <button id="navToday" class="active" onclick="showPage('today',this)"><span>🏠</span>오늘</button>
  <button id="navCalendar" onclick="showPage('calendar',this)"><span>🗓️</span>캘린더</button>
- <button onclick="showPage('guide',this)"><span>📘</span>가이드</button>
  <button onclick="showPage('ingredients',this)"><span>🥕</span>재료</button>
  <button onclick="showPage('historyPage',this)"><span>📖</span>기록</button>
+ <button onclick="showPage('guide',this)"><span>📘</span>가이드</button>
 </nav>
 
 <div class="modal" id="planModal">
@@ -216,7 +216,7 @@ h1{font-size:27px;line-height:1.1;margin:5px 0 0}
     </div>
     <div style="flex:1">
       <label style="display:block;font-size:10px;color:var(--muted);font-weight:900;margin-bottom:6px">아기 이름</label>
-      <input id="babyNameInput" type="text" placeholder="예: 도해" style="width:100%;border:1px solid var(--line);background:#FBF8F2;border-radius:12px;padding:11px;outline:none">
+      <input id="babyNameInput" type="text" placeholder="예: 준우" style="width:100%;border:1px solid var(--line);background:#FBF8F2;border-radius:12px;padding:11px;outline:none">
       <label style="display:block;font-size:10px;color:var(--muted);font-weight:900;margin:10px 0 6px">생년월일</label>
       <input id="babyBirthInput" type="date" style="width:100%;border:1px solid var(--line);background:#FBF8F2;border-radius:12px;padding:11px;outline:none;color:var(--ink)">
     </div>
@@ -469,12 +469,36 @@ function openProfile(){
   profileModal.classList.add('show');
 }
 babyPhotoInput.addEventListener('change',e=>{
-  const file=e.target.files?.[0]; if(!file)return;
+  const file=e.target.files?.[0];
+  if(!file)return;
+
+  // 휴대폰 원본 사진은 localStorage 용량을 쉽게 넘을 수 있어
+  // 프로필용 크기로 자동 축소/압축해서 저장한다.
   const reader=new FileReader();
   reader.onload=()=>{
-    pendingBabyPhoto=reader.result;
-    profilePreview.src=pendingBabyPhoto; profilePreview.style.display='block'; profilePreviewEmoji.style.display='none';
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=420;
+      const scale=Math.min(1,MAX/Math.max(img.width,img.height));
+      const w=Math.max(1,Math.round(img.width*scale));
+      const h=Math.max(1,Math.round(img.height*scale));
+
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+
+      // JPEG 압축으로 localStorage 저장 용량을 줄임
+      pendingBabyPhoto=canvas.toDataURL('image/jpeg',0.78);
+      profilePreview.src=pendingBabyPhoto;
+      profilePreview.style.display='block';
+      profilePreviewEmoji.style.display='none';
+      toast('프로필 사진을 준비했어요. 프로필 저장을 눌러주세요.');
+    };
+    img.onerror=()=>toast('사진을 불러오지 못했어요');
+    img.src=reader.result;
   };
+  reader.onerror=()=>toast('사진을 읽지 못했어요');
   reader.readAsDataURL(file);
 });
 function removeBabyPhoto(){
@@ -484,12 +508,28 @@ function removeBabyPhoto(){
 function saveProfile(){
   const name=babyNameInput.value.trim()||'우리 아기';
   const birth=babyBirthInput.value||'';
+
   if(birth){
     const bd=parseLocalDate(birth);
     const today=new Date();
-    if(bd>today){toast('생년월일은 오늘보다 미래일 수 없어요');return}
+    if(bd>today){
+      toast('생년월일은 오늘보다 미래일 수 없어요');
+      return;
+    }
   }
-  localStorage.setItem('babyProfileV6',JSON.stringify({name,photo:pendingBabyPhoto,birth}));
+
+  try{
+    localStorage.setItem('babyProfileV6',JSON.stringify({
+      name,
+      photo:pendingBabyPhoto,
+      birth
+    }));
+  }catch(err){
+    console.error(err);
+    toast('사진 용량이 커서 저장하지 못했어요. 다른 사진으로 다시 시도해 주세요.');
+    return;
+  }
+
   loadProfile();
   renderCalendar();
   renderToday();
